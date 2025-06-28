@@ -1,72 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-function Form({ agregarOActualizarEvaluacion, evaluacionAEditar }) {
-  const [nombre, setNombre] = useState('');
-  const [asignatura, setAsignatura] = useState('');
-  const [promedio, setPromedio] = useState('');
-
-  useEffect(() => {
-    if (evaluacionAEditar) {
-      setNombre(evaluacionAEditar.nombre);
-      setAsignatura(evaluacionAEditar.asignatura);
-      setPromedio(evaluacionAEditar.promedio);
-    } else {
-      setNombre('');
-      setAsignatura('');
-      setPromedio('');
+function Item({ evaluacion, eliminarEvaluacion, editarEvaluacion }) {
+  
+  const getEstadoPromedio = (promedio) => {
+    const p = parseFloat(promedio);
+    if (p >= 1 && p <= 3.9) {
+      return { texto: 'Deficiente', clase: 'deficiente' };
     }
-  }, [evaluacionAEditar]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (nombre.trim() && asignatura.trim() && promedio.trim()) {
-      agregarOActualizarEvaluacion({ nombre, asignatura, promedio });
-      setNombre('');
-      setAsignatura('');
-      setPromedio('');
+    if (p >= 4.0 && p <= 5.5) {
+      return { texto: 'Con Mejora', clase: 'con-mejora' };
     }
+    if (p >= 5.6 && p <= 6.4) {
+      return { texto: 'Buen Trabajo', clase: 'buen-trabajo' };
+    }
+    if (p >= 6.5 && p <= 7.0) {
+      return { texto: 'Destacado', clase: 'destacado' };
+    }
+    return { texto: '', clase: '' };
   };
 
+  const estado = getEstadoPromedio(evaluacion.promedio);
+
   return (
-    <form onSubmit={handleSubmit} className="evaluation-form">
-      <div className="form-group">
-        <label htmlFor="nombre">Nombre del Alumno:</label>
-        <input
-          id="nombre"
-          type="text"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          placeholder="Ej: Benjamin Gonzalez"
-        />
+    <li className="evaluation-item">
+      <div className="item-details">
+        <p><strong>Alumno:</strong> {evaluacion.nombre}</p>
+        <p><strong>Asignatura:</strong> {evaluacion.asignatura}</p>
+        <p><strong>Promedio:</strong> {evaluacion.promedio}</p>
+        {estado.texto && (
+          <span className={`status-badge ${estado.clase}`}>{estado.texto}</span>
+        )}
       </div>
-      <div className="form-group">
-        <label htmlFor="asignatura">Asignatura:</label>
-        <input
-          id="asignatura"
-          type="text"
-          value={asignatura}
-          onChange={(e) => setAsignatura(e.target.value)}
-          placeholder="Ej: Programacion"
-        />
+      <div className="item-buttons">
+        <button className="edit-btn" onClick={() => editarEvaluacion(evaluacion)}>Editar</button>
+        <button className="delete-btn" onClick={() => eliminarEvaluacion(evaluacion.id)}>Eliminar</button>
       </div>
-      <div className="form-group">
-        <label htmlFor="promedio">Promedio (0.0 - 7.0):</label>
-        <input
-          id="promedio"
-          type="number"
-          step="0.1"
-          min="0"
-          max="7"
-          value={promedio}
-          onChange={(e) => setPromedio(e.target.value)}
-          placeholder="Ej: 5.5"
-        />
-      </div>
-      <button type="submit">
-        {evaluacionAEditar ? 'Actualizar Evaluación' : 'Agregar Evaluación'}
-      </button>
-    </form>
+    </li>
   );
 }
 
-export default Form;
+export default Item;
